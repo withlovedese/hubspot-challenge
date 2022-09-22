@@ -63,54 +63,6 @@ function createUserSessions(visitorMap) {
     if (pages.length > 0) {
       addSession(startTime, endTime, pages);
     }
-    // let i = 1;
-
-    // while (i < events.length) {
-    //   let startTime = events[i - 1].timestamp;
-    //   let pages = [events[i - 1].url];
-    //   let duration = 0;
-
-    //   //checks if a session is actually a session lol
-    //   while (
-    //     i < events.length &&
-    //     events[i].timestamp - events[i - 1].timestamp <= sessionLimit
-    //   ) {
-    //     pages.push(events[i].url);
-    //     i++;
-    //   }
-
-    //   if (i - 1 > 0) {
-    //     duration = events[i - 1].timestamp - startTime;
-    //   }
-
-    //   let session = {
-    //     duration: duration,
-    //     pages: pages,
-    //     startTime: startTime,
-    //   };
-
-    //   userSessions[visitor].push(session);
-    //   i++;
-    // }
-
-    // //deal with edge case? (last page i think)
-    // // if (
-    // //   events[events.length - 1].timestamp - events[0].timestamp >
-    // //   sessionLimit
-    // // ) {
-    // //   userSessions[visitor].push({
-    // //     duration: 0,
-    // //     pages: [events[events.length - 1].url],
-    // //     startTime: events[events.length - 1].timestamp,
-    // //   });
-    // // }
-
-    // let lastSession = {
-    //   duration: 0,
-    //   pages: [events[events.length - 1].url],
-    //   startTime: events[events.length - 1].timestamp,
-    // };
-    // userSessions[visitor].push(lastSession);
 
     userSessions[visitor].sort((x, y) => x.startTime - y.startTime);
   }
