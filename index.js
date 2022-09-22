@@ -34,54 +34,83 @@ function createUserSessions(visitorMap) {
   for (let visitor in visitorMap) {
     userSessions[visitor] = [];
     let events = visitorMap[visitor];
-    let i = 1;
+    //events.sort();
+    let startTime = events[0].timestamp;
+    let url = events[0].url;
+    let endTime = startTime;
+    let pages = [url];
 
-    while (i < events.length) {
-      let startTime = events[i - 1].timestamp;
-      let pages = [events[i - 1].url];
-      let duration = 0;
-
-      //checks if a session is actually a session lol
-      while (
-        i < events.length &&
-        events[i].timestamp - events[i - 1].timestamp <= sessionLimit
-      ) {
-        pages.push(events[i].url);
-        i++;
-      }
-
-      if (i - 1 > 0) {
-        duration = events[i - 1].timestamp - startTime;
-      }
-
-      let session = {
-        duration: duration,
+    function addSession(startTime, endTime, pages) {
+      userSessions[visitor].push({
+        duration: endTime - startTime,
         pages: pages,
         startTime: startTime,
-      };
-
-      userSessions[visitor].push(session);
-      i++;
+      });
     }
 
-    //deal with edge case? (last page i think)
-    // if (
-    //   events[events.length - 1].timestamp - events[0].timestamp >
-    //   sessionLimit
-    // ) {
-    //   userSessions[visitor].push({
-    //     duration: 0,
-    //     pages: [events[events.length - 1].url],
-    //     startTime: events[events.length - 1].timestamp,
-    //   });
+    for (let i = 1; i < events.length; i++) {
+      if (events[i].timestamp <= startTime + sessionLimit) {
+        pages.push(events[i].url);
+        endTime = events[i].timestamp;
+        //pages.sort();
+      } else {
+        addSession(startTime, endTime, pages);
+        pages = [events[i].url];
+        startTime = endTime = events[i].timestamp;
+      }
+    }
+
+    if (pages.length > 0) {
+      addSession(startTime, endTime, pages);
+    }
+    // let i = 1;
+
+    // while (i < events.length) {
+    //   let startTime = events[i - 1].timestamp;
+    //   let pages = [events[i - 1].url];
+    //   let duration = 0;
+
+    //   //checks if a session is actually a session lol
+    //   while (
+    //     i < events.length &&
+    //     events[i].timestamp - events[i - 1].timestamp <= sessionLimit
+    //   ) {
+    //     pages.push(events[i].url);
+    //     i++;
+    //   }
+
+    //   if (i - 1 > 0) {
+    //     duration = events[i - 1].timestamp - startTime;
+    //   }
+
+    //   let session = {
+    //     duration: duration,
+    //     pages: pages,
+    //     startTime: startTime,
+    //   };
+
+    //   userSessions[visitor].push(session);
+    //   i++;
     // }
 
-    let lastSession = {
-      duration: 0,
-      pages: [events[events.length - 1].url],
-      startTime: events[events.length - 1].timestamp,
-    };
-    userSessions[visitor].push(lastSession);
+    // //deal with edge case? (last page i think)
+    // // if (
+    // //   events[events.length - 1].timestamp - events[0].timestamp >
+    // //   sessionLimit
+    // // ) {
+    // //   userSessions[visitor].push({
+    // //     duration: 0,
+    // //     pages: [events[events.length - 1].url],
+    // //     startTime: events[events.length - 1].timestamp,
+    // //   });
+    // // }
+
+    // let lastSession = {
+    //   duration: 0,
+    //   pages: [events[events.length - 1].url],
+    //   startTime: events[events.length - 1].timestamp,
+    // };
+    // userSessions[visitor].push(lastSession);
 
     userSessions[visitor].sort((x, y) => x.startTime - y.startTime);
   }
@@ -101,6 +130,7 @@ axios
     //console.log(visitors);
     const sessionsByUser = createUserSessions(visitors);
     //console.log(userSessions);
+    //console.log(JSON.stringify({ sessionsByUser }));
     //post processed data to server
     axios
       .post(RESPONSE_API, { sessionsByUser })
