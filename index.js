@@ -49,7 +49,7 @@ function createUserSessions(visitorMap) {
     }
 
     for (let i = 1; i < events.length; i++) {
-      if (events[i].timestamp <= startTime + sessionLimit) {
+      if (events[i].timestamp <= endTime + sessionLimit) {
         pages.push(events[i].url);
         endTime = events[i].timestamp;
         //pages.sort();
